@@ -11,10 +11,26 @@
 
         /* MAIN VIEW */
         .main-view{width:100vw;height:100vh;background:linear-gradient(135deg,#DC143C 0%,#228B22 100%);display:flex;flex-direction:column;align-items:center;justify-content:center}
-        #presentIcon{font-size:420px;cursor:pointer;animation:bounce 2s infinite;transition:transform .3s}
-        #presentIcon:hover{transform:scale(1.05)}
+        #presentIcon{display:flex;align-items:center;flex-direction:column}
+        /* fallback emoji style kept for very small viewports */
+        #presentIcon .emoji{font-size:420px;cursor:pointer;animation:bounce 2s infinite;transition:transform .3s}
+        #presentIcon .emoji:hover{transform:scale(1.05)}
         @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
-        #presentIcon.opening{animation:openGift .8s ease forwards}
+
+        /* 3D gift box structure */
+        .gift-box{width:240px;height:200px;position:relative;perspective:900px;cursor:pointer}
+        .box-base{width:100%;height:70%;background:#d12b2b;border-radius:8px;border:6px solid #ffd700;position:absolute;bottom:0;left:0;box-shadow:0 12px 30px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .box-lid{width:110%;height:40%;background:#b2002d;border:6px solid #ffd700;border-bottom:0;border-radius:10px;position:absolute;left:50%;top:-6%;transform-origin:center bottom;transform:translateX(-50%) rotateX(0deg);transition:transform .6s cubic-bezier(.2,.9,.3,1)}
+        .box.opened .box-lid{transform:translateX(-50%) rotateX(-70deg) translateY(-6px)}
+        .ribbon-vertical{position:absolute;left:50%;top:0;width:18px;height:100%;background:#ffeb3b;transform:translateX(-50%);z-index:6}
+        .ribbon-horizontal{position:absolute;left:0;top:48%;height:18px;width:100%;background:#ffeb3b;z-index:6}
+
+        /* sparks that shoot up when opening */
+        .spark{position:absolute;pointer-events:none;font-size:18px;opacity:0;transform:translateY(0) scale(.6);transition:transform .6s ease,opacity .6s}
+        .spark.fly{opacity:1;transform:translateY(-140px) scale(1.1)}
+
+        /* ensure emoji fallback hidden when box exists */
+        @media (min-width:420px){ #presentIcon .emoji{display:none} }
         @keyframes openGift{0%{transform:scale(1) rotateX(0);opacity:1}50%{transform:scale(1.15) rotateX(20deg)}100%{transform:scale(0.45) rotateX(90deg);opacity:0}}
         .icon-text{color:#FFD700;font-size:44px;margin-top:18px;font-weight:700;text-shadow:2px 2px 4px rgba(0,0,0,.45)}
 
@@ -40,6 +56,10 @@
         .photo-controls{margin-top:12px;display:flex;align-items:center;justify-content:center}
         .photo-controls button{margin:0 8px;padding:10px 18px;border-radius:8px;border:none;font-weight:700;cursor:pointer}
 
+        /* page enter animation (used when transitioning from box) */
+        .page-content.enter{animation:pageIn .45s cubic-bezier(.2,.9,.3,1) both}
+        @keyframes pageIn{from{opacity:0;transform:scale(.96) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
         /* THEMED STYLES */
         #flowerPage{background:linear-gradient(180deg,#ffd6e8 0%,#ffeef8 100%)}
         #memoriesPage{background:linear-gradient(180deg,#e8f2ff 0%,#ffffff 100%)}
@@ -62,7 +82,15 @@
 
     <!-- MAIN -->
     <div class="main-view" id="mainView">
-        <div id="presentIcon">🎁</div>
+        <div id="presentIcon">
+            <div class="gift-box" id="giftBox" title="Open gift">
+                <div class="box-lid"></div>
+                <div class="box-base"></div>
+                <div class="ribbon-vertical"></div>
+                <div class="ribbon-horizontal"></div>
+            </div>
+            <div class="emoji">🎁</div>
+        </div>
         <div class="icon-text">CLICK TO OPEN</div>
     </div>
 
@@ -136,31 +164,89 @@
         const sectionsView = document.getElementById('sectionsView');
         const presentIcon = document.getElementById('presentIcon');
 
-        presentIcon.addEventListener('click', () => {
+        // open present with lid animation + inline effects
+        const giftBox = document.getElementById('giftBox');
+        presentIcon.addEventListener('click', (ev) => {
             if (!musicOn) { bgMusic.play(); musicToggle.textContent = '🎵 Music ON'; musicOn = true; }
-            presentIcon.classList.add('opening');
-            setTimeout(() => { mainView.style.display='none'; sectionsView.style.display='block'; presentIcon.classList.remove('opening'); }, 800);
+
+            // add opened state to animate lid
+            giftBox.classList.add('opened');
+
+            // create inline sparks positioned above box
+            createSparksAtElement(giftBox, 8);
+
+            // small confetti burst from box center
+            const rect = giftBox.getBoundingClientRect();
+            createConfetti(rect.left + rect.width/2, rect.top + rect.height/3);
+
+            // after short delay show sections (keep music playing)
+            setTimeout(() => {
+                mainView.style.display='none';
+                sectionsView.style.display='block';
+            }, 700);
+
+            // reset lid after user goes back (handled in backToMain)
         });
 
         function backToMain(){ sectionsView.style.display='none'; mainView.style.display='flex'; }
 
-        // gift open (SPA): animate small gift then show themed page
+        // gift open (SPA): animate small gift then transition into themed page
         function openGift(kind){
-            // play small confetti
             createConfetti();
-
             const el = kind === 'flower' ? document.getElementById('sFlower') : kind === 'memories' ? document.getElementById('sMemories') : document.getElementById('sLetter');
+            // small pop animation on original
             el.classList.add('opening');
-            setTimeout(()=>{
+
+            // clone element and animate into center (gives feeling of transforming into page)
+            const rect = el.getBoundingClientRect();
+            const clone = el.cloneNode(true);
+            clone.style.position = 'fixed';
+            clone.style.left = rect.left + 'px';
+            clone.style.top = rect.top + 'px';
+            clone.style.width = rect.width + 'px';
+            clone.style.height = rect.height + 'px';
+            clone.style.margin = '0';
+            clone.style.transformOrigin = 'center center';
+            clone.style.zIndex = 2500;
+            clone.style.borderRadius = window.getComputedStyle(el).borderRadius || '12px';
+            clone.style.transition = 'transform .62s cubic-bezier(.2,.9,.3,1),opacity .35s linear';
+            document.body.appendChild(clone);
+
+            // hide original to avoid double-visual
+            el.style.visibility = 'hidden';
+
+            // compute translate to center
+            const cx = (window.innerWidth/2) - (rect.left + rect.width/2);
+            const cy = (window.innerHeight/2) - (rect.top + rect.height/2);
+
+            // trigger transform on next frame
+            requestAnimationFrame(()=>{
+                clone.style.transform = `translate(${cx}px, ${cy}px) scale(6)`;
+                clone.style.opacity = '0.98';
+            });
+
+            // when transition ends, remove clone and show the page with enter animation
+            clone.addEventListener('transitionend', function handler(){
+                clone.removeEventListener('transitionend', handler);
+                // ensure sections hidden
+                sectionsView.style.display = 'none';
+                const pageId = kind === 'flower' ? 'flowerPage' : kind === 'memories' ? 'memoriesPage' : 'letterPage';
+                const page = document.getElementById(pageId);
+                page.classList.add('active');
+                // animate page content
+                const pageContent = page.querySelector('.page-content');
+                if(pageContent){
+                    pageContent.classList.add('enter');
+                    setTimeout(()=> pageContent.classList.remove('enter'), 600);
+                }
+                // cleanup clone and restore original visibility
+                clone.remove();
+                el.style.visibility = '';
                 el.classList.remove('opening');
-                sectionsView.style.display='none';
-                if(kind==='flower') document.getElementById('flowerPage').classList.add('active');
-                if(kind==='memories') document.getElementById('memoriesPage').classList.add('active');
-                if(kind==='letter') document.getElementById('letterPage').classList.add('active');
-            },600);
+            });
         }
 
-        function closeGift(){ document.querySelectorAll('.gift-page').forEach(p=>p.classList.remove('active')); sectionsView.style.display='block'; }
+        function closeGift(){ document.querySelectorAll('.gift-page').forEach(p=>p.classList.remove('active')); sectionsView.style.display='block'; /* reset lid if needed */ if(document.getElementById('giftBox')) document.getElementById('giftBox').classList.remove('opened'); }
 
         // memories photo controls
         const memPhotos = ['photo1.jpg','photo2.jpg','photo3.jpg'];
@@ -169,8 +255,41 @@
         function memPrev(){ memIdx=(memIdx-1+memPhotos.length)%memPhotos.length; document.getElementById('memImage').src=memPhotos[memIdx]; document.getElementById('memNum').textContent=memIdx+1; }
 
         // confetti
-        function createConfetti(){ for(let i=0;i<30;i++){ setTimeout(()=>{ const d=document.createElement('div'); d.className='confetti'; d.textContent=['🎉','✨','🎊','🎄','🎁'][Math.floor(Math.random()*5)]; d.style.left=(Math.random()*100)+'vw'; d.style.top='-10px'; d.style.fontSize=(14+Math.random()*36)+'px'; d.style.opacity=Math.random()*0.6+0.3; d.style.animation='fall '+(2+Math.random()*2)+'s linear forwards'; document.body.appendChild(d); setTimeout(()=>d.remove(),4200); }, i*25); } }
+        function createConfetti(x,y){
+            for(let i=0;i<30;i++){
+                setTimeout(()=>{
+                    const d=document.createElement('div');
+                    d.className='confetti';
+                    d.textContent=['🎉','✨','🎊','🎄','🎁'][Math.floor(Math.random()*5)];
+                    const spread = (Math.random()-0.5)*260;
+                    d.style.left=( (x !== undefined ? x : Math.random()*window.innerWidth) + spread )+'px';
+                    d.style.top=( (y !== undefined ? y : -10) )+'px';
+                    d.style.fontSize=(14+Math.random()*36)+'px';
+                    d.style.opacity=Math.random()*0.6+0.3;
+                    d.style.animation='fall '+(2+Math.random()*2)+'s linear forwards';
+                    document.body.appendChild(d);
+                    setTimeout(()=>d.remove(),4200);
+                }, i*20);
+            }
+        }
         const style=document.createElement('style'); style.textContent='@keyframes fall{to{transform:translateY(100vh) rotate(360deg);opacity:0}}'; document.head.appendChild(style);
+
+        // sparks
+        function createSparksAtElement(el, count=6){
+            const r = el.getBoundingClientRect();
+            for(let i=0;i<count;i++){
+                const s = document.createElement('div');
+                s.className='spark';
+                s.textContent=['✨','✴️','❇️'][Math.floor(Math.random()*3)];
+                s.style.left=(r.left + r.width/2 + (Math.random()-0.5)*80)+'px';
+                s.style.top=(r.top + 10 + Math.random()*20)+'px';
+                document.body.appendChild(s);
+                // force reflow then animate
+                void s.offsetWidth;
+                s.classList.add('fly');
+                setTimeout(()=>s.remove(),800 + Math.random()*600);
+            }
+        }
 
         console.log('SPA ready');
     </script>
