@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Christmas Present</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #DC143C 0%, #228B22 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* PRESENT ICON VIEW */
+        #presentIcon {
+            font-size: 500px;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+            transition: transform 0.3s ease;
+        }
+
+        #presentIcon:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        #presentIcon.opening {
+            animation: openGift 0.8s ease forwards;
+        }
+
+        @keyframes openGift {
+            0% {
+                transform: scale(1) rotateX(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2) rotateX(20deg);
+            }
+            100% {
+                transform: scale(0.5) rotateX(90deg);
+                opacity: 0;
+            }
+        }
+
+        .icon-text {
+            font-size: 48px;
+            color: #FFD700;
+            margin-top: 30px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49%, 100% { opacity: 1; }
+            50%, 99% { opacity: 0.7; }
+        }
+
+        /* SECTIONS VIEW */
+        #sectionsContainer {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            animation: scaleIn 0.8s ease;
+            flex-direction: column;
+        }
+
+        .sections-title {
+            font-size: 72px;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 40px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            animation: titleAppear 0.8s ease forwards;
+        }
+
+        @keyframes titleAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .sections-grid {
+            display: flex;
+            gap: 80px;
+            width: 100%;
+            height: 100%;
+            padding: 20px 60px 80px 60px;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        .sections-grid::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .sections-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .sections-grid::-webkit-scrollbar-thumb {
+            background: #FFD700;
+            border-radius: 10px;
+        }
+
+        .section {
+            position: relative;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #228B22 0%, #32CD32 100%);
+            border: 6px solid #FFD700;
+            flex-shrink: 0;
+            width: 280px;
+            height: 340px;
+            animation: slideInLeft 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        .section:nth-child(1) {
+            animation-delay: 0.8s;
+        }
+
+        .section:nth-child(2) {
+            animation-delay: 1.1s;
+        }
+
+        .section:nth-child(3) {
+            animation-delay: 1.4s;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section:hover {
+            transform: scale(1.08) translateY(-15px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .section.selected {
+            width: 280px;
+            height: 340px;
+        }
+
+        .section.opening {
+            animation: openGiftSection 0.6s ease forwards;
+        }
+
+        @keyframes openGiftSection {
+            0% {
+                transform: scale(1) rotateY(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1) rotateY(15deg);
+            }
+            100% {
+                transform: scale(0.3) rotateY(90deg);
+                opacity: 0;
+            }
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background: #FFD700;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .section::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background: #FFD700;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .bow {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #FF6B9D 0%, #DC143C 100%);
+            border: 3px solid #FFD700;
+            border-radius: 50%;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .section.selected .bow {
+            width: 80px;
+            height: 80px;
+            top: -35px;
+        }
+
+        .section-icon {
+            font-size: 120px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 5;
+            transition: font-size 0.5s ease;
+        }
+
+        .section.selected .section-icon {
+            font-size: 120px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            z-index: 5;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            transition: font-size 0.5s ease;
+        }
+
+        .section.selected .section-title {
+            font-size: 28px;
+        }
+
+        .section-content {
+            display: none;
+            position: relative;
+            z-index: 5;
+            margin-top: 20px;
+            font-size: 18px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .section.selected .section-content {
+            display: block;
+        }
+
+        /* FLOWER SECTION */
+        #flowerSection .section-icon {
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* PICTURE SECTION */
+        #pictureSection {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .picture-display {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* LETTER SECTION */
+        .letter-content {
+            background: #FFFACD;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            color: #333;
+            font-style: italic;
+            line-height: 1.8;
+            border-left: 4px solid #DC143C;
+        }
+
+        /* MODAL FOR EXPANDED VIEW */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 60px;
+            border-radius: 30px;
+            max-width: 95vw;
+            max-height: 95vh;
+            overflow: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalAppear 0.5s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8) rotateY(-20deg);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 40px;
+            cursor: pointer;
+            color: #DC143C;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .modal img {
+            width: 100%;
+            max-height: 70vh;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* BACK BUTTON */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #FFD700;
+            color: #228B22;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1500;
+        }
+
+        .back-button:hover {
+            background: #FFF44F;
+            transform: scale(1.05);
+        }
+
+        /* MUSIC CONTROL */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #FFD700;
+            border: 2px solid #FFD700;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .music-control:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        /* CONFETTI */
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* DECORATIVE EMOJIS / BACKGROUND */
+        .decor {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.95;
+            z-index: 1000;
+            font-size: 56px;
+            transform: translateZ(0);
+            animation: float 6s ease-in-out infinite;
+        }
+        .decor.e1 { left: 6%; top: 12%; font-size: 64px; }
+        .decor.e2 { right: 8%; top: 18%; font-size: 56px; }
+        .decor.e3 { left: 40%; bottom: 8%; font-size: 72px; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(12px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @media (max-width: 768px) {
+            .sections-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .decor { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Audio for music -->
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music control -->
+    <button class="music-control" id="musicToggle">🎵 Music ON</button>
+
+    <!-- Decorative elves / snow / gifts in background -->
+    <div class="decor e1">🧝‍♀️</div>
+    <div class="decor e2">❄️</div>
+    <div class="decor e3">🎁</div>
+
+    <div class="container">
+        <!-- PRESENT ICON VIEW -->
+        <div id="iconView">
+            <div id="presentIcon">🎁</div>
+            <div class="icon-text">CLICK TO OPEN</div>
+        </div>
+
+        <!-- SECTIONS VIEW -->
+        <div id="sectionsContainer">
+            <button class="back-button" onclick="backToPresent()">← BACK</button>
+            <div class="sections-title">🎄 Merry Christmas 🎄</div>
+            
+            <div class="sections-grid" id="sectionsGrid">
+                <!-- FLOWER SECTION -->
+                <div class="section" onclick="selectPresent(this, 'openFlower')">
+                    <div class="bow"></div>
+                    <div class="section-icon">🌹</div>
+                    <div class="section-title">Flower</div>
+                    <div class="section-content">A beautiful rose for you</div>
+                </div>
+
+                <!-- PICTURE SECTION -->
+                <div class="section" onclick="selectPresent(this, 'openPicture')">
+                    <div class="bow"></div>
+                    <div class="section-icon">📸</div>
+                    <div class="section-title">Memories</div>
+                    <div class="section-content">Our special moments</div>
+                </div>
+
+                <!-- LETTER SECTION -->
+                <div class="section" onclick="selectPresent(this, 'openLetter')">
+                    <div class="bow"></div>
+                    <div class="section-icon">💌</div>
+                    <div class="section-title">Letter</div>
+                    <div class="section-content">A message from my heart</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Flower Modal -->
+    <div id="flowerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('flowerModal')">&times;</span>
+            <div style="text-align: center;">
+                <div style="font-size: 150px; margin-bottom: 30px; animation: rotate 4s linear infinite;">🌹</div>
+                <h2 style="color: #DC143C; margin-bottom: 20px; font-size: 48px;">A Beautiful Rose for You</h2>
+                <p style="font-size: 28px; color: #333; line-height: 2;">
+                    Like this rose, you bring beauty and elegance to my life.<br><br>
+                    Your presence blooms in my heart every single day.<br><br>
+                    You are the most beautiful person, inside and out.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Picture Modal -->
+    <div id="pictureModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('pictureModal')">&times;</span>
+            <h2 style="color: #DC143C; margin-bottom: 30px; text-align: center; font-size: 44px;">Our Special Memories 📸</h2>
+            <img id="modalImage" src="photo1.jpg" alt="Special moment" style="width: 100%; max-height: 70vh; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <div style="text-align: center;">
+                <button onclick="previousPhoto()" style="margin: 15px; padding: 15px 40px; font-size: 24px; cursor: pointer; background: #DC143C; color: white; border: none; border-radius: 10px; font-weight: bold;">← Previous</button>
+                <span style="font-size: 24px; color: #228B22; font-weight: bold; margin: 0 20px;">Photo <span id="picNum">1</span> of <span id="picTotal">3</span></span>
+                <button onclick="nextPhotoModal()" style="margin: 15px; padding: 15px 40px; font-size: 24px; cursor: pointer; background: #228B22; color: white; border: none; border-radius: 10px; font-weight: bold;">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Letter Modal -->
+    <div id="letterModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('letterModal')">&times;</span>
+            <div style="background: linear-gradient(135deg, #FFFACD 0%, #FFE4B5 100%); padding: 50px; border-radius: 15px; border: 4px solid #DC143C; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                <div style="font-size: 80px; text-align: center; margin-bottom: 30px;">💌</div>
+                <h3 style="color: #DC143C; margin-bottom: 30px; font-size: 36px; text-align: center;">A Love Letter for You</h3>
+                <p style="font-size: 24px; color: #333; line-height: 2.2; text-align: center;">
+                    Dear Love,<br><br>
+                    This Christmas, I wanted to give you something special. 
+                    Not just gifts, but moments filled with love and warmth.<br><br>
+                    You mean the world to me, and every day with you is a blessing.
+                    Thank you for being the light in my life.<br><br>
+                    Here's to many more beautiful memories together.<br><br>
+                    <span style="color: #DC143C; font-weight: bold;">With all my love,</span><br>
+                    Forever Yours ❤️
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let musicPlaying = false;
+        let currentPhotoIndex = 0;
+        const photos = ['photo1.jpg', 'photo2.jpg', 'photo3.jpg'];
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        const presentIcon = document.getElementById('presentIcon');
+        const iconView = document.getElementById('iconView');
+        const sectionsContainer = document.getElementById('sectionsContainer');
+
+        // Music toggle
+        musicToggle.addEventListener('click', () => {
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicToggle.textContent = '🔇 Music OFF';
+                musicPlaying = false;
+            } else {
+                bgMusic.play();
+                musicToggle.textContent = '🎵 Music ON';
+                musicPlaying = true;
+            }
+        });
+
+        // Open present
+        presentIcon.addEventListener('click', () => {
+            createConfetti();
+            
+            // Play music
+            if (!musicPlaying) {
+                bgMusic.play();
+                musicToggle.textContent = '🎵 Music ON';
+                musicPlaying = true;
+            }
+
+            // Trigger opening animation
+            presentIcon.classList.add('opening');
+            
+            // Show sections after animation
+            setTimeout(() => {
+                iconView.style.display = 'none';
+                sectionsContainer.style.display = 'block';
+                presentIcon.classList.remove('opening');
+            }, 800);
+        });
+
+        // Back to present
+        function backToPresent() {
+            iconView.style.display = 'block';
+            sectionsContainer.style.display = 'none';
+        }
+
+        // Select and open present (navigates to a dedicated page)
+        function selectPresent(element, action) {
+            // Add opening animation
+            element.classList.add('opening');
+
+            // After animation, navigate to the dedicated page
+            setTimeout(() => {
+                if (action === 'openFlower') window.location.href = 'flower.html';
+                else if (action === 'openPicture') window.location.href = 'memories.html';
+                else if (action === 'openLetter') window.location.href = 'letter.html';
+            }, 600);
+        }
+
+        // Open sections
+        function openFlower() {
+            document.getElementById('flowerModal').style.display = 'flex';
+        }
+
+        function openPicture() {
+            currentPhotoIndex = 0;
+            document.getElementById('modalImage').src = photos[0];
+            document.getElementById('pictureModal').style.display = 'flex';
+        }
+
+        function openLetter() {
+            document.getElementById('letterModal').style.display = 'flex';
+        }
+
+        // Modal controls
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            // Immediately reset all sections to original size
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('selected');
+            });
+        }
+
+        // Photo navigation
+        function nextPhotoModal() {
+            currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+            document.getElementById('modalImage').src = photos[currentPhotoIndex];
+            document.getElementById('picNum').textContent = currentPhotoIndex + 1;
+        }
+
+        function previousPhoto() {
+            currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+            document.getElementById('modalImage').src = photos[currentPhotoIndex];
+            document.getElementById('picNum').textContent = currentPhotoIndex + 1;
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            ['flowerModal', 'pictureModal', 'letterModal'].forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    // Reset sections to original size
+                    document.querySelectorAll('.section').forEach(sec => {
+                        sec.classList.remove('selected');
+                    });
+                }
+            });
+        });
+
+        // Confetti effect
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.textContent = ['🎉', '🎊', '✨', '🎄', '🎁'][Math.floor(Math.random() * 5)];
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '-10px';
+                    confetti.style.fontSize = (20 + Math.random() * 30) + 'px';
+                    confetti.style.opacity = Math.random() * 0.7 + 0.3;
+                    confetti.style.animation = `fall ${2 + Math.random() * 2}s linear forwards`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 30);
+            }
+        }
+
+        // Confetti animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        console.log('🎄 Interactive Christmas Present Ready!');
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memories - Merry Christmas</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{min-height:100vh;background:linear-gradient(135deg,#8b0000 0%,#006400 100%);font-family:Arial,sans-serif;color:#222}
+        .decor{position:fixed;pointer-events:none;font-size:48px;opacity:.9;animation:float 6s ease-in-out infinite}
+        .decor.e1{left:6%;top:10%;font-size:64px}
+        .decor.e2{right:8%;top:18%;font-size:56px}
+        .decor.e3{left:40%;bottom:8%;font-size:72px}
+        @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(10px)}100%{transform:translateY(0)}}
+        .page{max-width:1000px;margin:40px auto;padding:40px;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+        .back{position:fixed;left:20px;top:20px;background:#ffd700;color:#006400;border:none;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:pointer;z-index:2000}
+        h1{color:#DC143C;text-align:center;margin-bottom:20px}
+        .photo{width:100%;max-height:70vh;object-fit:cover;border-radius:12px;display:block;margin:0 auto 20px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+        .controls{text-align:center}
+        .controls button{margin:10px;padding:12px 26px;font-size:18px;border-radius:10px;border:none;cursor:pointer}
+    </style>
+</head>
+<body>
+    <button class="back" onclick="location.href='index.html'">← Back</button>
+    <div class="decor e1">🧝‍♂️</div>
+    <div class="decor e2">❄️</div>
+    <div class="decor e3">📷</div>
+
+    <div class="page">
+        <h1>Our Special Memories 📸</h1>
+        <img id="photo" class="photo" src="photo1.jpg" alt="memory">
+        <div class="controls">
+            <button onclick="prev()" style="background:#DC143C;color:#fff">← Previous</button>
+            <span id="num">1</span> / <span id="total">3</span>
+            <button onclick="next()" style="background:#228B22;color:#fff">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        const photos=['photo1.jpg','photo2.jpg','photo3.jpg'];
+        let idx=0;document.getElementById('total').textContent=photos.length;
+        function show(){document.getElementById('photo').src=photos[idx];document.getElementById('num').textContent=idx+1}
+        function next(){idx=(idx+1)%photos.length;show()}
+        function prev(){idx=(idx-1+photos.length)%photos.length;show()}
+    </script>
+</body>
+</html>

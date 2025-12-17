@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower - Merry Christmas</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{min-height:100vh;background:linear-gradient(135deg,#8b0000 0%,#006400 100%);font-family:Arial,sans-serif;color:#222}
+        .decor{position:fixed;pointer-events:none;font-size:48px;opacity:.9;animation:float 6s ease-in-out infinite}
+        .decor.e1{left:6%;top:10%;font-size:64px}
+        .decor.e2{right:8%;top:18%;font-size:56px}
+        .decor.e3{left:40%;bottom:8%;font-size:72px}
+        @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(10px)}100%{transform:translateY(0)}}
+        .page{max-width:900px;margin:40px auto;padding:40px;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+        .back{position:fixed;left:20px;top:20px;background:#ffd700;color:#006400;border:none;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:pointer;z-index:2000}
+        .icon{font-size:140px;text-align:center;margin-bottom:20px}
+        h1{color:#DC143C;text-align:center;margin-bottom:12px}
+        p{font-size:20px;line-height:1.8;color:#333;text-align:center}
+    </style>
+</head>
+<body>
+    <button class="back" onclick="location.href='index.html'">← Back</button>
+    <div class="decor e1">🧝‍♀️</div>
+    <div class="decor e2">❄️</div>
+    <div class="decor e3">🎁</div>
+
+    <div class="page">
+        <div class="icon">🌹</div>
+        <h1>A Beautiful Rose for You</h1>
+        <p>
+            Like this rose, you bring beauty and elegance to my life.
+            Your presence blooms in my heart every single day.
+            You are the most beautiful person, inside and out.
+        </p>
+    </div>
+</body>
+</html>
